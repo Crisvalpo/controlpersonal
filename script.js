@@ -59,9 +59,9 @@ function updatePrintDate() {
 
 async function fetchData() {
     const loader = document.getElementById('main-loader');
-    console.log('🔄 Iniciando carga de datos...');
+    console.log('🔄 Iniciando carga de datos desde Drive: ' + JSON_URL_DRIVE);
 
-    // 1. Intentar acceso directo (solo funciona en servidores u origins permitidos)
+    // Intentar acceso directo
     try {
         const response = await fetch(`${JSON_URL_DRIVE}&t=${Date.now()}`);
         if (response.ok) {
@@ -72,26 +72,26 @@ async function fetchData() {
             return;
         }
     } catch (e) {
-        console.log('⚠️ Acceso directo bloqueado por CORS (normal en archivos locales).');
+        console.log('⚠️ Acceso directo bloqueado (CORS). Intentando proxies...');
     }
 
-    // 2. Intentar con Proxies (Estrategia robusta para archivos locales)
+    // Configuración de proxies
     const proxies = [
-        // AllOrigins con /get (envuelve la respuesta en JSON, ideal para bypass de CORS estricto)
         {
+            name: 'AllOrigins JSON',
             url: 'https://api.allorigins.win/get?url=',
             process: async (res) => {
                 const json = await res.json();
                 return JSON.parse(json.contents);
             }
         },
-        // CorsProxy.io (simple)
         {
+            name: 'CorsProxy.io',
             url: 'https://corsproxy.io/?',
             process: async (res) => await res.json()
         },
-        // AllOrigins /raw (fallback)
         {
+            name: 'AllOrigins Raw',
             url: 'https://api.allorigins.win/raw?url=',
             process: async (res) => await res.json()
         }
@@ -99,30 +99,36 @@ async function fetchData() {
 
     for (const proxy of proxies) {
         try {
-            console.log(`📡 Intentando vía proxy: ${proxy.url}`);
-            const finalUrl = proxy.url + encodeURIComponent(JSON_URL_DRIVE + '&t=' + Date.now());
-            const res = await fetch(finalUrl);
+            console.log(`📡 Probando con proxy: ${proxy.name}`);
+            const targetUrl = JSON_URL_DRIVE + '&t=' + Date.now();
+            const finalUrl = proxy.url + encodeURIComponent(targetUrl);
 
+            const res = await fetch(finalUrl);
             if (res.ok) {
                 rawData = await proxy.process(res);
                 if (Array.isArray(rawData) && rawData.length > 0) {
                     renderData(rawData);
-                    console.log('✅ Datos cargados correctamente vía proxy');
+                    console.log(`✅ Carga exitosa vía ${proxy.name}`);
                     loader.style.display = 'none';
                     return;
                 }
             }
+            throw new Error('Respuesta no válida');
         } catch (err) {
-            console.warn(`❌ Falló proxy ${proxy.url}:`, err.message);
+            console.warn(`❌ Falló ${proxy.name}:`, err.message);
         }
     }
 
-    // 3. Error final
+    // Si todo falla
     loader.innerHTML = `
-        <div style="padding: 20px; text-align: center;">
-            <p style="color:#ff4d4d; font-weight: bold;">❌ Error de conexión</p>
-            <p style="font-size: 0.9rem; color: #ccc;">No pudimos conectar con los datos en Drive. Esto sucede a veces al abrir el archivo directamente desde la carpeta.</p>
-            <button onclick="location.reload()" style="background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; margin-top: 10px;">Reintentar</button>
+        <div style="padding: 30px; text-align: center; background: rgba(255,255,255,0.1); border-radius: 20px; backdrop-filter: blur(10px);">
+            <p style="color:#ff4d4d; font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;">❌ Error de conexión</p>
+            <p style="font-size: 0.9rem; color: #a1a1a1; margin-bottom: 20px;">
+                No pudimos obtener los datos. Verifica que el archivo en Drive esté compartido como "Cualquiera con el enlace".
+            </p>
+            <button onclick="location.reload()" style="background: linear-gradient(135deg, #2563eb, #0ea5e9); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(37,99,235,0.3);">
+                Reintentar conexión
+            </button>
         </div>
     `;
 }

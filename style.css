@@ -426,15 +426,60 @@ body {
 }
 
 @media print {
+    body {
+        background: white !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    .sidebar,
+    .content-header,
+    .btn-print,
+    .no-print {
+        display: none !important;
+    }
+
+    .content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    .app-container {
+        display: block !important;
+    }
+
+    .data-view {
+        padding: 0 !important;
+    }
+
     .group-section {
         page-break-inside: avoid;
         margin-bottom: 2rem;
     }
 
     .group-title {
-        border-left-color: black;
-        color: black;
+        border-left: 5px solid black !important;
+        color: black !important;
         font-size: 1.2rem;
+    }
+
+    .card {
+        background: white !important;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+
+    .hh-summary {
+        background: white !important;
+        border: 2px solid #000 !important;
+        color: black !important;
+    }
+
+    .total-row {
+        background-color: #eee !important;
+        color: black !important;
     }
 }
 
