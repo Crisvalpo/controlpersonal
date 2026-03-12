@@ -242,31 +242,50 @@ function renderListTableView(data, container) {
         groupSection.innerHTML = `<h2 class="group-title">📍 ${groupName}</h2>`;
 
         const table = document.createElement('table');
-        table.className = 'summary-table'; // Reusar estilos base de tabla
+        table.className = 'summary-table detail-table';
         table.style.marginBottom = '20px';
+
+        // Agrupar miembros de esta cuadrilla por categoría
+        const catGroups = members.reduce((acc, curr) => {
+            const cat = curr.CATEGORIA || 'General';
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(curr);
+            return acc;
+        }, {});
+
+        let tableBodyHtml = '';
+        Object.entries(catGroups).forEach(([catName, catMembers]) => {
+            // Fila de sub-cabecera para la categoría
+            tableBodyHtml += `
+                <tr class="category-row">
+                    <td colspan="4">📂 ${catName} (${catMembers.length})</td>
+                </tr>
+            `;
+
+            catMembers.forEach(p => {
+                const isContable = isPersonContable(p);
+                tableBodyHtml += `
+                    <tr class="${!isContable ? 'no-hh-row' : ''}">
+                        <td><strong>${p.NOMBRE}</strong></td>
+                        <td>${p.RUT || '---'}</td>
+                        <td>${p.ROL || '---'}</td>
+                        <td>${isContable ? 'SI' : '<span class="red-text">NO</span>'}</td>
+                    </tr>
+                `;
+            });
+        });
+
         table.innerHTML = `
             <thead>
                 <tr>
-                    <th style="width: 40%">Nombre</th>
-                    <th style="width: 20%">RUT</th>
-                    <th style="width: 15%">Categoría</th>
+                    <th style="width: 50%">Nombre</th>
+                    <th style="width: 25%">RUT</th>
                     <th style="width: 15%">Rol</th>
                     <th style="width: 10%">HH</th>
                 </tr>
             </thead>
             <tbody>
-                ${members.map(p => {
-            const isContable = isPersonContable(p);
-            return `
-                        <tr class="${!isContable ? 'no-hh-row' : ''}">
-                            <td><strong>${p.NOMBRE}</strong></td>
-                            <td>${p.RUT || '---'}</td>
-                            <td>${p.CATEGORIA || '---'}</td>
-                            <td>${p.ROL || '---'}</td>
-                            <td>${isContable ? 'SI' : '<span class="red-text">NO</span>'}</td>
-                        </tr>
-                    `;
-        }).join('')}
+                ${tableBodyHtml}
             </tbody>
         `;
         groupSection.appendChild(table);

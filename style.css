@@ -378,6 +378,24 @@ body {
 }
 
 /* Summary Refinement */
+.category-row td {
+    background-color: rgba(0, 0, 0, 0.05);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--primary);
+    padding: 8px 15px !important;
+    border-bottom: 2px solid var(--primary-light) !important;
+}
+
+@media print {
+    .category-row td {
+        background-color: #f0f0f0 !important;
+        color: black !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
 .hh-summary th {
     background-color: var(--bg-sidebar);
     color: white;
