@@ -150,24 +150,23 @@ function renderData(data) {
     updateStats(data);
 
     if (currentView === 'all') {
-        renderListView(data, container);
+        renderListView(data, container); // Vista cuadricula normal
     } else {
-        // En vista resumen, mostrar AMBOS para el informe completo
+        // MODO INFORME: Resumen + Tablas de Cuadrillas
         renderSummaryView(data, container);
 
-        // Separador para impresión
         const hr = document.createElement('hr');
         hr.className = 'print-divider';
         container.appendChild(hr);
 
-        // Título opcional para el detalle
-        const detailTitle = document.createElement('h2');
-        detailTitle.innerText = "Detalle de Cuadrillas";
-        detailTitle.style.margin = "20px 0";
-        detailTitle.style.color = "var(--text)";
+        const detailTitle = document.createElement('h1');
+        detailTitle.innerText = "DETALLE POR CUADRILLAS";
+        detailTitle.style.textAlign = "center";
+        detailTitle.style.margin = "30px 0";
+        detailTitle.style.color = "#333";
         container.appendChild(detailTitle);
 
-        renderListView(data, container);
+        renderListTableView(data, container); // Renderizar como TABLAS
     }
 }
 
@@ -181,43 +180,76 @@ function updateStats(data) {
 }
 
 function renderListView(data, container) {
-    // Agrupar por CUADRILLA
-    const groups = data.reduce((acc, curr) => {
-        const group = curr.CUADRILLA || 'Sin Cuadrilla';
-        if (!acc[group]) acc[group] = [];
-        acc[group].push(curr);
-        return acc;
-    }, {});
-
+    const groups = groupDataByCuadrilla(data);
     Object.entries(groups).forEach(([groupName, members]) => {
         const groupSection = document.createElement('div');
         groupSection.className = 'group-section';
         groupSection.innerHTML = `<h2 class="group-title">📍 ${groupName} <span>(${members.length})</span></h2>`;
-
         const grid = document.createElement('div');
         grid.className = 'personnel-grid';
-
         members.forEach(p => {
             const isNoHH = p.CONTABLE_HH && String(p.CONTABLE_HH).toUpperCase() === 'NO';
             const card = document.createElement('div');
             card.className = `person-card ${isNoHH ? 'no-hh' : ''}`;
             card.innerHTML = `
-                <div class="card-top">
-                    <span class="role-tag">${p.ROL || '---'}</span>
-                    <span class="cat-label">${p.CATEGORIA || 'General'}</span>
-                </div>
-                <div class="person-details">
-                    <h3 class="person-name">${p.NOMBRE}</h3>
-                    <p class="person-rut">RUT: ${p.RUT || '---'}</p>
-                    ${isNoHH ? '<span class="hh-badge">NO CONTABLE HH</span>' : ''}
-                </div>
+                <div class="card-top"><span class="role-tag">${p.ROL || '---'}</span><span class="cat-label">${p.CATEGORIA || 'General'}</span></div>
+                <div class="person-details"><h3 class="person-name">${p.NOMBRE}</h3><p class="person-rut">RUT: ${p.RUT || '---'}</p>${isNoHH ? '<span class="hh-badge">NO CONTABLE HH</span>' : ''}</div>
             `;
             grid.appendChild(card);
         });
-
         groupSection.appendChild(grid);
         container.appendChild(groupSection);
     });
+}
+
+function renderListTableView(data, container) {
+    const groups = groupDataByCuadrilla(data);
+    Object.entries(groups).forEach(([groupName, members]) => {
+        const groupSection = document.createElement('div');
+        groupSection.className = 'group-section';
+        groupSection.style.breakInside = 'avoid';
+        groupSection.innerHTML = `<h2 class="group-title">📍 ${groupName}</h2>`;
+
+        const table = document.createElement('table');
+        table.className = 'summary-table'; // Reusar estilos base de tabla
+        table.style.marginBottom = '20px';
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th style="width: 40%">Nombre</th>
+                    <th style="width: 20%">RUT</th>
+                    <th style="width: 15%">Categoría</th>
+                    <th style="width: 15%">Rol</th>
+                    <th style="width: 10%">HH</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${members.map(p => {
+            const isNoHH = p.CONTABLE_HH && String(p.CONTABLE_HH).toUpperCase() === 'NO';
+            return `
+                        <tr class="${isNoHH ? 'no-hh-row' : ''}">
+                            <td><strong>${p.NOMBRE}</strong></td>
+                            <td>${p.RUT || '---'}</td>
+                            <td>${p.CATEGORIA || '---'}</td>
+                            <td>${p.ROL || '---'}</td>
+                            <td>${isNoHH ? '<span class="red-text">NO</span>' : 'SI'}</td>
+                        </tr>
+                    `;
+        }).join('')}
+            </tbody>
+        `;
+        groupSection.appendChild(table);
+        container.appendChild(groupSection);
+    });
+}
+
+function groupDataByCuadrilla(data) {
+    return data.reduce((acc, curr) => {
+        const group = curr.CUADRILLA || 'Sin Cuadrilla';
+        if (!acc[group]) acc[group] = [];
+        acc[group].push(curr);
+        return acc;
+    }, {});
 }
 
 function renderSummaryView(data, container) {
