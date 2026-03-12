@@ -172,10 +172,6 @@ function updateStats(data) {
         <div class="stat-pill">Total: ${data.length} personas</div>
         <div class="stat-pill">HH Contables: ${hhCount}</div>
     `;
-    renderSummaryView(data, container);
-} else {
-    renderListView(data, container);
-}
 }
 
 function renderListView(data, container) {
