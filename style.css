@@ -122,26 +122,11 @@ body {
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-.print-trigger {
+.sidebar-footer {
+    display: none;
     margin-top: auto;
-    background-color: white;
-    color: var(--bg-sidebar);
-    border: none;
-    padding: 1rem;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 700;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    transition: transform 0.2s;
-}
-
-.print-trigger:hover {
-    transform: translateY(-2px);
-    background-color: #f1f5f9;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Content Area */

@@ -41,6 +41,15 @@ function setupEventListeners() {
             document.querySelector('.nav-btn.active').classList.remove('active');
             btn.classList.add('active');
             currentView = btn.dataset.view;
+
+            // Toggle botón de impresión: solo visible en Resumen
+            const sidebarFooter = document.querySelector('.sidebar-footer');
+            if (currentView === 'summary') {
+                sidebarFooter.style.display = 'block';
+            } else {
+                sidebarFooter.style.display = 'none';
+            }
+
             renderData(rawData);
         });
     });
