@@ -185,9 +185,19 @@ function renderData(data) {
  * @returns {Boolean}
  */
 function isPersonContable(p) {
-    if (!p.CONTABLE_HH || String(p.CONTABLE_HH).trim() === '') return true;
-    const val = String(p.CONTABLE_HH).trim().toUpperCase();
-    // Es contable a menos que diga explícitamente NO (manejando espacios)
+    // Buscar la clave que más se parezca a CONTABLE_HH (ignorando espacios/guiones/mayúsculas)
+    const fuzzyKey = Object.keys(p).find(k => {
+        const normalized = k.trim().replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+        return normalized.includes('CONTABLEHH');
+    });
+
+    const rawVal = fuzzyKey ? p[fuzzyKey] : p.CONTABLE_HH;
+
+    // Si no hay valor o está vacío, asumimos SI (como pide el usuario)
+    if (rawVal === undefined || rawVal === null || String(rawVal).trim() === '') return true;
+
+    const val = String(rawVal).trim().toUpperCase();
+    // Es contable a menos que diga explícitamente NO
     return val !== 'NO';
 }
 
