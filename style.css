@@ -62,6 +62,21 @@ body {
     font-size: 1.2rem;
 }
 
+.logo-section h1 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.sub-logo {
+    font-size: 0.7rem;
+    color: var(--accent);
+    font-weight: 600;
+    margin-top: -4px;
+    display: block;
+    opacity: 0.8;
+}
+
 .brand h1 {
     font-size: 1.5rem;
     font-weight: 600;

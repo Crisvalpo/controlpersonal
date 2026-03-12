@@ -138,22 +138,44 @@ function filterData(term) {
 }
 
 function renderData(data) {
-    const container = document.getElementById('data-container');
+    const container = document.getElementById('cards-container');
     container.innerHTML = '';
 
-    // Actualizar stats en el header
+    updateStats(data);
+
+    if (currentView === 'all') {
+        renderListView(data, container);
+    } else {
+        // En vista resumen, mostrar AMBOS para el informe completo
+        renderSummaryView(data, container);
+
+        // Separador para impresión
+        const hr = document.createElement('hr');
+        hr.className = 'print-divider';
+        container.appendChild(hr);
+
+        // Título opcional para el detalle
+        const detailTitle = document.createElement('h2');
+        detailTitle.innerText = "Detalle de Cuadrillas";
+        detailTitle.style.margin = "20px 0";
+        detailTitle.style.color = "var(--text)";
+        container.appendChild(detailTitle);
+
+        renderListView(data, container);
+    }
+}
+
+function updateStats(data) {
     const statsContainer = document.getElementById('header-stats');
     const hhCount = data.filter(p => !p.CONTABLE_HH || String(p.CONTABLE_HH).toUpperCase() === 'SI').length;
     statsContainer.innerHTML = `
         <div class="stat-pill">Total: ${data.length} personas</div>
         <div class="stat-pill">HH Contables: ${hhCount}</div>
     `;
-
-    if (currentView === 'summary') {
-        renderSummaryView(data, container);
-    } else {
-        renderListView(data, container);
-    }
+    renderSummaryView(data, container);
+} else {
+    renderListView(data, container);
+}
 }
 
 function renderListView(data, container) {
