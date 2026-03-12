@@ -179,9 +179,21 @@ function renderData(data) {
     }
 }
 
+/**
+ * Determina si una persona es contable para HH
+ * @param {Object} p Objeto persona
+ * @returns {Boolean}
+ */
+function isPersonContable(p) {
+    if (!p.CONTABLE_HH || String(p.CONTABLE_HH).trim() === '') return true;
+    const val = String(p.CONTABLE_HH).trim().toUpperCase();
+    // Es contable a menos que diga explícitamente NO (manejando espacios)
+    return val !== 'NO';
+}
+
 function updateStats(data) {
     const statsContainer = document.getElementById('header-stats');
-    const hhCount = data.filter(p => !p.CONTABLE_HH || String(p.CONTABLE_HH).toUpperCase() === 'SI').length;
+    const hhCount = data.filter(p => isPersonContable(p)).length;
     statsContainer.innerHTML = `
         <div class="stat-pill">Total: ${data.length} personas</div>
         <div class="stat-pill">HH Contables: ${hhCount}</div>
@@ -197,12 +209,12 @@ function renderListView(data, container) {
         const grid = document.createElement('div');
         grid.className = 'personnel-grid';
         members.forEach(p => {
-            const isNoHH = p.CONTABLE_HH && String(p.CONTABLE_HH).toUpperCase() === 'NO';
+            const isContable = isPersonContable(p);
             const card = document.createElement('div');
-            card.className = `person-card ${isNoHH ? 'no-hh' : ''}`;
+            card.className = `person-card ${!isContable ? 'no-hh' : ''}`;
             card.innerHTML = `
                 <div class="card-top"><span class="role-tag">${p.ROL || '---'}</span><span class="cat-label">${p.CATEGORIA || 'General'}</span></div>
-                <div class="person-details"><h3 class="person-name">${p.NOMBRE}</h3><p class="person-rut">RUT: ${p.RUT || '---'}</p>${isNoHH ? '<span class="hh-badge">NO CONTABLE HH</span>' : ''}</div>
+                <div class="person-details"><h3 class="person-name">${p.NOMBRE}</h3><p class="person-rut">RUT: ${p.RUT || '---'}</p>${!isContable ? '<span class="hh-badge">NO CONTABLE HH</span>' : ''}</div>
             `;
             grid.appendChild(card);
         });
@@ -234,14 +246,14 @@ function renderListTableView(data, container) {
             </thead>
             <tbody>
                 ${members.map(p => {
-            const isNoHH = p.CONTABLE_HH && String(p.CONTABLE_HH).toUpperCase() === 'NO';
+            const isContable = isPersonContable(p);
             return `
-                        <tr class="${isNoHH ? 'no-hh-row' : ''}">
+                        <tr class="${!isContable ? 'no-hh-row' : ''}">
                             <td><strong>${p.NOMBRE}</strong></td>
                             <td>${p.RUT || '---'}</td>
                             <td>${p.CATEGORIA || '---'}</td>
                             <td>${p.ROL || '---'}</td>
-                            <td>${isNoHH ? '<span class="red-text">NO</span>' : 'SI'}</td>
+                            <td>${isContable ? 'SI' : '<span class="red-text">NO</span>'}</td>
                         </tr>
                     `;
         }).join('')}
@@ -268,14 +280,15 @@ function renderSummaryView(data, container) {
     const stats = categories.map(cat => {
         const catMembers = data.filter(p => (p.CATEGORIA || 'OTRAS') === cat);
         const subtotal = catMembers.length;
-        const noContable = catMembers.filter(p => p.CONTABLE_HH && String(p.CONTABLE_HH).toUpperCase() === 'NO').length;
-        const contable = subtotal - noContable;
+        const contableMembers = catMembers.filter(p => isPersonContable(p));
+        const contable = contableMembers.length;
+        const noContable = subtotal - contable;
         return { cat, subtotal, noContable, contable };
     });
 
     const totalSubtotal = data.length;
-    const totalNoContable = data.filter(p => p.CONTABLE_HH && String(p.CONTABLE_HH).toUpperCase() === 'NO').length;
-    const totalContable = totalSubtotal - totalNoContable;
+    const totalContable = data.filter(p => isPersonContable(p)).length;
+    const totalNoContable = totalSubtotal - totalContable;
 
     const table = document.createElement('table');
     table.className = 'summary-table hh-summary';
