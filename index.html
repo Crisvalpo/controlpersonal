@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte Control Personal - Premium</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar / Navigation -->
+        <aside class="sidebar no-print">
+            <div class="brand">
+                <div class="logo-box">CP</div>
+                <h1>Control<span>Personal</span></h1>
+            </div>
+            <nav class="main-nav">
+                <button class="nav-btn active" data-view="all">
+                    <span class="icon">👥</span> Listado General
+                </button>
+                <button class="nav-btn" data-view="summary">
+                    <span class="icon">📊</span> Resumen Dotación
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="btn-print" class="print-trigger">
+                    <span class="icon">🖨️</span> Generar Informe
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="content-header no-print">
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="main-search" placeholder="Busca por nombre, RUT, rol o categoría...">
+                </div>
+                <div class="stats-pills" id="header-stats">
+                    <div class="stat-pill">Cargando...</div>
+                </div>
+            </header>
+
+            <section id="print-header" class="only-print">
+                <h1>INFORME DE CONTROL DE PERSONAL</h1>
+                <p id="print-date"></p>
+                <hr>
+            </section>
+
+            <div id="data-container" class="data-view">
+                <!-- Data will be rendered here via JS -->
+                 <div class="loader-overlay" id="main-loader">
+                    <div class="spinner"></div>
+                    <p>Conectando con Google Sheets...</p>
+                 </div>
+            </div>
+
+            <footer class="content-footer only-print">
+                <div class="signature-line">Firma Responsable</div>
+                <p>Documento generado digitalmente - Sistema de Control de Personal</p>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
