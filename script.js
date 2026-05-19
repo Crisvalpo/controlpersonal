@@ -87,17 +87,17 @@ async function fetchData() {
     // Configuración de proxies
     const proxies = [
         {
+            name: 'CodeTabs',
+            url: 'https://api.codetabs.com/v1/proxy?quest=',
+            process: async (res) => await res.json()
+        },
+        {
             name: 'AllOrigins JSON',
             url: 'https://api.allorigins.win/get?url=',
             process: async (res) => {
                 const json = await res.json();
                 return JSON.parse(json.contents);
             }
-        },
-        {
-            name: 'CorsProxy.io',
-            url: 'https://corsproxy.io/?',
-            process: async (res) => await res.json()
         },
         {
             name: 'AllOrigins Raw',
